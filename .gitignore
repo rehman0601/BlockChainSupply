@@ -1,0 +1,13 @@
+# SSH keys
+*.pem
+
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# macOS
+.DS_Store

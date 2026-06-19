@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Workflow{% endblock %}
+{% block content %}
+<header class="page-header">
+  <h1>Workflow Management</h1>
+  <p>Assign tasks and route them through approval chains.</p>
+</header>
+
+{% if current_user.role in ['admin','manager'] %}
+<div class="panel">
+  <h2>Assign Task</h2>
+  <form method="post" action="{{ url_for('add_task') }}" class="inline-form">
+    <input type="text" name="title" placeholder="Task title" required>
+    <input type="text" name="description" placeholder="Description">
+    <select name="assigned_to" required>
+      <option value="" disabled selected>Assignee</option>
+      {% for u in users %}
+        <option value="{{ u.id }}">{{ u.username }} ({{ u.role }})</option>
+      {% endfor %}
+    </select>
+    <input type="date" name="due_date">
+    <button type="submit" class="btn btn-primary">Assign</button>
+  </form>
+  <p class="hint-text">Tasks created by a manager automatically route to an admin for approval.</p>
+</div>
+{% endif %}
+
+<div class="panel">
+  <h2>Tasks</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>Title</th><th>Assignee</th><th>Due</th><th>Status</th><th>Update</th></tr>
+    </thead>
+    <tbody>
+      {% for t in tasks %}
+      <tr>
+        <td>{{ t.title }}</td>
+        <td>{{ t.assignee.username if t.assignee else '—' }}</td>
+        <td>{{ t.due_date or '—' }}</td>
+        <td><span class="badge badge-status-{{ t.status|lower|replace(' ', '-') }}">{{ t.status }}</span></td>
+        <td>
+          <form method="post" action="{{ url_for('update_task_status', task_id=t.id) }}" class="inline-form-tight">
+            <select name="status">
+              {% for st in ['Open','In Progress','Done'] %}
+                <option value="{{ st }}" {{ 'selected' if t.status==st }}>{{ st }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-small">Update</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if current_user.role == 'admin' %}
+<div class="panel">
+  <h2>Pending Approvals</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>Task</th><th>Requested by</th><th>Decision</th></tr>
+    </thead>
+    <tbody>
+      {% for t in tasks %}
+        {% for a in t.approvals if a.status == 'Pending' %}
+        <tr>
+          <td>{{ t.title }}</td>
+          <td>{{ t.creator.username if t.creator else '—' }}</td>
+          <td>
+            <form method="post" action="{{ url_for('decide_approval', approval_id=a.id) }}" class="inline-form-tight">
+              <input type="text" name="comment" placeholder="Comment (optional)">
+              <button type="submit" name="decision" value="Approved" class="btn btn-small btn-ok">Approve</button>
+              <button type="submit" name="decision" value="Rejected" class="btn btn-small btn-warn">Reject</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<header class="page-header">
+  <h1>Reporting Dashboard</h1>
+  <p>Inventory metrics and shipment analytics.</p>
+</header>
+
+<div class="panel">
+  <h2>Inventory by Warehouse</h2>
+  <table class="data-table">
+    <thead><tr><th>Warehouse</th><th>Total Quantity</th></tr></thead>
+    <tbody>
+      {% for wh, qty in inventory_by_warehouse.items() %}
+      <tr><td>{{ wh }}</td><td>{{ qty }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="panel">
+  <h2>Shipment Status Breakdown</h2>
+  <table class="data-table">
+    <thead><tr><th>Status</th><th>Count</th></tr></thead>
+    <tbody>
+      {% for status, count in shipment_status_counts.items() %}
+      <tr><td><span class="badge badge-status-{{ status|lower|replace(' ', '-') }}">{{ status }}</span></td><td>{{ count }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="panel">
+  <h2>Low Stock Alerts</h2>
+  <table class="data-table">
+    <thead><tr><th>SKU</th><th>Name</th><th>Quantity</th><th>Reorder Level</th></tr></thead>
+    <tbody>
+      {% for p in low_stock_products %}
+      <tr class="row-warn"><td>{{ p.sku }}</td><td>{{ p.name }}</td><td>{{ p.quantity }}</td><td>{{ p.reorder_level }}</td></tr>
+      {% else %}
+      <tr><td colspan="4">No low stock items.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if current_user.role in ['admin','manager'] %}
+<div class="panel">
+  <h2>Export</h2>
+  <p>Generate a CSV inventory report, upload it to S3, and download a copy.</p>
+  <a href="{{ url_for('export_report') }}" class="btn btn-primary">Export to S3 + Download</a>
+</div>
+{% endif %}
+{% endblock %}

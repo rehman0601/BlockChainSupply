@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<header class="page-header">
+  <h1>Overview</h1>
+  <p>Real-time snapshot of inventory, shipments, and workflow.</p>
+</header>
+
+<div class="metric-grid">
+  <div class="metric-card">
+    <span class="metric-label">Total Products</span>
+    <span class="metric-value">{{ total_products }}</span>
+  </div>
+  <div class="metric-card metric-warn">
+    <span class="metric-label">Low Stock Items</span>
+    <span class="metric-value">{{ low_stock }}</span>
+  </div>
+  <div class="metric-card">
+    <span class="metric-label">Total Shipments</span>
+    <span class="metric-value">{{ total_shipments }}</span>
+  </div>
+  <div class="metric-card">
+    <span class="metric-label">Pending Shipments</span>
+    <span class="metric-value">{{ pending_shipments }}</span>
+  </div>
+  <div class="metric-card">
+    <span class="metric-label">Open Tasks</span>
+    <span class="metric-value">{{ open_tasks }}</span>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>AWS Components in Use</h2>
+  <ul class="component-list">
+    <li><strong>EC2</strong> — hosts this Flask application</li>
+    <li><strong>RDS (MariaDB)</strong> — stores users, inventory, and shipments</li>
+    <li><strong>S3</strong> — stores exported reports and documents</li>
+    <li><strong>CloudWatch</strong> — monitors CPU, network, and application logs</li>
+    <li><strong>IAM</strong> — role-based access for the EC2 instance (S3 / CloudWatch)</li>
+    <li><strong>VPC</strong> — public subnet for EC2, private subnet for RDS</li>
+  </ul>
+</div>
+{% endblock %}

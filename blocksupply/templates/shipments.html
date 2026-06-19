@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Shipments{% endblock %}
+{% block content %}
+<header class="page-header">
+  <h1>Shipment Tracking</h1>
+  <p>Monitor shipment status, source, and destination.</p>
+</header>
+
+{% if current_user.role in ['admin','manager'] %}
+<div class="panel">
+  <h2>Create Shipment</h2>
+  <form method="post" action="{{ url_for('add_shipment') }}" class="inline-form">
+    <select name="product_id" required>
+      <option value="" disabled selected>Product</option>
+      {% for p in products %}
+        <option value="{{ p.id }}">{{ p.sku }} — {{ p.name }}</option>
+      {% endfor %}
+    </select>
+    <input type="number" name="quantity" placeholder="Quantity" required>
+    <input type="text" name="source" placeholder="Source" required>
+    <input type="text" name="destination" placeholder="Destination" required>
+    <button type="submit" class="btn btn-primary">Create</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="panel">
+  <h2>Shipments</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>ID</th><th>Product</th><th>Qty</th><th>Source</th><th>Destination</th><th>Status</th><th>Update</th></tr>
+    </thead>
+    <tbody>
+      {% for s in shipments %}
+      <tr>
+        <td>#{{ s.id }}</td>
+        <td>{{ s.product.name if s.product else '—' }}</td>
+        <td>{{ s.quantity }}</td>
+        <td>{{ s.source }}</td>
+        <td>{{ s.destination }}</td>
+        <td><span class="badge badge-status-{{ s.status|lower|replace(' ', '-') }}">{{ s.status }}</span></td>
+        <td>
+          <form method="post" action="{{ url_for('update_shipment_status', shipment_id=s.id) }}" class="inline-form-tight">
+            <select name="status">
+              {% for st in ['Pending','In Transit','Delivered','Cancelled'] %}
+                <option value="{{ st }}" {{ 'selected' if s.status==st }}>{{ st }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-small">Update</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
