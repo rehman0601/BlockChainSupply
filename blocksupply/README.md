@@ -22,7 +22,7 @@ cloud concepts: **EC2, RDS (MariaDB), S3, CloudWatch, IAM, and VPC**.
 ## Project Structure
 
 ```
-blocksupply/
+BlockChainSupply/
 ├── app.py                     # Flask application & routes
 ├── models.py                  # SQLAlchemy models
 ├── config.py                  # Environment-based configuration
